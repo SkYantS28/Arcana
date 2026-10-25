@@ -1,0 +1,64 @@
+
+/* Variáveis e cores do tema escuro */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --main-text: #edf3ef;
+  --muted-text: #a7b5ad;
+  --card-surface: #1d2924;
+  --soft-surface: #273a31;
+  --border-color: #394b42;
+  --accent: #a2d2b5;
+}
+
+/* Fundo geral */
+
+:root[data-theme="dark"] body {
+  background: #111a16;
+  color: var(--main-text);
+}
+
+:root[data-theme="dark"] .app-shell,
+:root[data-theme="dark"] .main-area,
+:root[data-theme="dark"] .page-content {
+  background-color: #111a16;
+  color: var(--main-text);
+}
+
+/* Cartões, navegação e elementos principais */
+
+:root[data-theme="dark"] .sidebar,
+:root[data-theme="dark"] .topbar,
+:root[data-theme="dark"] .content-card,
+:root[data-theme="dark"] .service-card,
+:root[data-theme="dark"] .stat-card,
+:root[data-theme="dark"] .modal,
+:root[data-theme="dark"] .feature-panel,
+:root[data-theme="dark"] .empty-state {
+  background-color: var(--card-surface);
+  color: var(--main-text);
+  border-color: var(--border-color);
+}
+
+/* Campos de formulário */
+
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+  background-color: #17221c;
+  color: var(--main-text);
+  border-color: var(--border-color);
+}
+
+/* Menu lateral */
+
+:root[data-theme="dark"] .nav-item {
+  color: var(--muted-text);
+}
+
+:root[data-theme="dark"] .nav-item:hover,
+:root[data-theme="dark"] .nav-active {
+  background-color: var(--soft-surface);
+  color: var(--main-text);
+}

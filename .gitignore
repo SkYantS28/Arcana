@@ -1,0 +1,44 @@
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependências
+node_modules/
+
+# Build do Vite
+dist/
+dist-ssr/
+*.local
+
+# Arquivos de ambiente e credenciais
+.env
+.env.*
+!.env.example
+
+# Android / Capacitor
+android/.gradle/
+android/local.properties
+android/**/build/
+android/captures/
+
+# Assinaturas privadas do aplicativo
+*.jks
+*.keystore
+keystore.properties
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
