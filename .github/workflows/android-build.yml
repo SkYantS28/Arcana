@@ -1,4 +1,3 @@
-```yaml
 name: Build Arcana Android
 
 on:
@@ -62,4 +61,3 @@ jobs:
             android/app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
           retention-days: 7
-```
