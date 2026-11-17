@@ -572,7 +572,7 @@ function App() {
       </main>
 
       <ServiceModal
-        translations={t}
+        t={t}
         showServiceForm={showServiceForm}
         setShowServiceForm={setShowServiceForm}
         savingService={savingService}
