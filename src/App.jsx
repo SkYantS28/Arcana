@@ -10,10 +10,12 @@ import {
   Wallet,
   ShieldCheck,
   Settings,
+  Bell,
 } from 'lucide-react'
 
 import { supabase } from './lib/supabase'
-import { TRANSLATIONS } from './translations'
+import { TRANSLATIONS } from './data/translations'
+import { useNotifications } from './hooks/useNotifications'
 
 import Auth from './Auth'
 import ResetPassword from './ResetPassword'
@@ -32,6 +34,7 @@ import Consulentes from './pages/Consulentes'
 import Recompensas from './pages/Recompensas'
 import Financeiro from './pages/Financeiro'
 import Equipe from './pages/Equipe'
+import Notifications from './pages/Notifications'
 
 function money(value, language) {
   const locale =
@@ -75,6 +78,7 @@ function App() {
     theme: 'light',
     language: 'pt-BR',
   })
+  const notificationCenter = useNotifications(session?.user?.id)
 
   // Garante que o aplicativo sempre utilize um idioma existente.
   const language = TRANSLATIONS[preferences.language]
@@ -91,6 +95,7 @@ function App() {
       { id: 'consulentes', label: t.navClients, icon: Users },
       { id: 'recompensas', label: t.navRewards, icon: Gift },
       { id: 'financeiro', label: t.navFinance, icon: Wallet },
+      { id: 'notificacoes', label: t.navNotifications, icon: Bell },
     ],
     [t],
   )
@@ -427,6 +432,22 @@ function App() {
           />
         )
 
+      case 'notificacoes':
+        return (
+          <Notifications
+            t={t}
+            language={language}
+            notifications={notificationCenter.notifications}
+            loading={notificationCenter.loading}
+            error={notificationCenter.error}
+            unreadIds={notificationCenter.unreadIds}
+            markAsRead={notificationCenter.markAsRead}
+            markAllAsRead={notificationCenter.markAllAsRead}
+            refresh={notificationCenter.refresh}
+            navigate={navigate}
+          />
+        )
+
       case 'agenda':
         return (
           <Agenda
@@ -531,6 +552,8 @@ function App() {
           translations={t}
           activeNavigation={activeNavigation}
           setMobileMenuOpen={setMobileMenuOpen}
+          onNotificationsClick={() => navigate('notificacoes')}
+          unreadNotificationCount={notificationCenter.unreadCount}
         />
 
         <div className="page-content">

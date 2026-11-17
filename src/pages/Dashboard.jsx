@@ -49,7 +49,7 @@ export default function Dashboard({ t, language, navigate, money }) {
 
       if (!user) {
         throw new Error(
-          'Faça login novamente para consultar seus dados.',
+          t.loginError,
         )
       }
 
@@ -99,12 +99,12 @@ export default function Dashboard({ t, language, navigate, money }) {
 
       setDataError(
         error.message ||
-          'Não foi possível carregar os dados do Dashboard.',
+          t.dashboardError,
       )
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [t])
 
   useEffect(() => {
     let cancelled = false
@@ -122,7 +122,7 @@ export default function Dashboard({ t, language, navigate, money }) {
 
         setDataError(
           error.message ||
-            'Não foi possível carregar os dados do Dashboard.',
+            t.dashboardError,
         )
 
         setLoading(false)
@@ -134,26 +134,20 @@ export default function Dashboard({ t, language, navigate, money }) {
     return () => {
       cancelled = true
     }
-  }, [loadDashboard])
+  }, [loadDashboard, t.dashboardError])
 
   const stats = [
     {
       label: t.appointmentsRegistered,
       value: loading ? '…' : String(statsData.appointments),
-      description:
-        language === 'pt'
-          ? 'Atendimentos não cancelados'
-          : 'Appointments not cancelled',
+      description: t.dashboardAppointmentsDescription,
       icon: CalendarDays,
       color: 'green',
     },
     {
       label: t.clients,
       value: loading ? '…' : String(statsData.clients),
-      description:
-        language === 'pt'
-          ? 'Consulentes cadastrados'
-          : 'Registered clients',
+      description: t.dashboardClientsDescription,
       icon: Users,
       color: 'blue',
     },
@@ -162,10 +156,7 @@ export default function Dashboard({ t, language, navigate, money }) {
       value: loading
         ? '…'
         : money(statsData.revenue, language),
-      description:
-        language === 'pt'
-          ? 'Total de pagamentos confirmados'
-          : 'Total of confirmed payments',
+      description: t.dashboardRevenueDescription,
       icon: CircleDollarSign,
       color: 'gold',
     },
@@ -217,7 +208,7 @@ export default function Dashboard({ t, language, navigate, money }) {
             onClick={() => loadDashboard()}
             disabled={loading}
           >
-            {loading ? 'Carregando...' : 'Tentar novamente'}
+            {loading ? t.loading : t.tryAgain}
           </button>
         </div>
       )}
@@ -263,9 +254,7 @@ export default function Dashboard({ t, language, navigate, money }) {
             <h2 id="overview-title">{t.overview}</h2>
 
             <span>
-              {language === 'pt'
-                ? 'Dados atualizados da sua conta'
-                : 'Updated account data'}
+              {t.dashboardDataUpdated}
             </span>
           </div>
 
@@ -275,13 +264,7 @@ export default function Dashboard({ t, language, navigate, money }) {
             onClick={() => loadDashboard()}
             disabled={loading}
           >
-            {loading
-              ? language === 'pt'
-                ? 'Atualizando...'
-                : 'Refreshing...'
-              : language === 'pt'
-                ? 'Atualizar'
-                : 'Refresh'}
+            {loading ? t.refreshing : t.refresh}
           </button>
         </div>
 
