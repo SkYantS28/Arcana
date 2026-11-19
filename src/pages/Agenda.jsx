@@ -51,6 +51,7 @@ const DEADLINE_OPTIONS = [
 const EMPTY_FORM = {
   appointmentType: 'scheduled',
   serviceId: '',
+  clientId: '',
   clientName: '',
   phone: '',
   scheduledAt: '',
@@ -180,6 +181,7 @@ export default function Agenda() {
   const [authLoading, setAuthLoading] = useState(true)
 
   const [services, setServices] = useState([])
+  const [clients, setClients] = useState([])
   const [appointments, setAppointments] = useState([])
 
   const [loading, setLoading] = useState(true)
@@ -218,17 +220,24 @@ export default function Agenda() {
     setError('')
 
     try {
-      const [servicesResult, appointmentsResult] = await Promise.all([
-        supabase
-          .from('services')
-          .select('id, name, price, active')
-          .eq('owner_id', id)
-          .eq('active', true)
-          .order('name', { ascending: true }),
+      const [servicesResult, clientsResult, appointmentsResult] =
+        await Promise.all([
+          supabase
+            .from('services')
+            .select('id, name, price, active')
+            .eq('owner_id', id)
+            .eq('active', true)
+            .order('name', { ascending: true }),
 
-        supabase
-          .from('appointments')
-          .select(`
+          supabase
+            .from('clients')
+            .select('id, name, phone')
+            .eq('owner_id', id)
+            .order('name', { ascending: true }),
+
+          supabase
+            .from('appointments')
+            .select(`
             id,
             client_id,
             service_id,
@@ -249,14 +258,16 @@ export default function Agenda() {
               price
             )
           `)
-          .eq('owner_id', id)
-          .order('created_at', { ascending: false }),
-      ])
+            .eq('owner_id', id)
+            .order('created_at', { ascending: false }),
+        ])
 
       if (servicesResult.error) throw servicesResult.error
+      if (clientsResult.error) throw clientsResult.error
       if (appointmentsResult.error) throw appointmentsResult.error
 
       setServices(servicesResult.data || [])
+      setClients(clientsResult.data || [])
       setAppointments(appointmentsResult.data || [])
     } catch (err) {
       console.error('Erro ao carregar a agenda:', err)
@@ -577,6 +588,17 @@ export default function Agenda() {
       return
     }
 
+    const selectedClient = form.clientId
+      ? clients.find((client) => client.id === form.clientId)
+      : null
+
+    if (form.clientId && !selectedClient) {
+      setError(
+        'O consulente selecionado não está mais disponível. Atualize a agenda e tente novamente.',
+      )
+      return
+    }
+
     const phone = form.phone.trim()
     const name = form.clientName.trim()
 
@@ -715,24 +737,31 @@ export default function Agenda() {
 
         await loadData(userId, { silent: true })
       } else {
-        // Cria o consulente e, em seguida, o atendimento.
-        const { data: client, error: clientError } = await supabase
-          .from('clients')
-          .insert({
-            owner_id: userId,
-            name: name || null,
-            phone,
-          })
-          .select('id')
-          .single()
+        let clientId = selectedClient?.id
+        let createdClient = null
 
-        if (clientError) throw clientError
+        if (!clientId) {
+          const { data: client, error: clientError } = await supabase
+            .from('clients')
+            .insert({
+              owner_id: userId,
+              name: name || null,
+              phone,
+            })
+            .select('id')
+            .single()
+
+          if (clientError) throw clientError
+
+          clientId = client.id
+          createdClient = client
+        }
 
         const { error: appointmentError } = await supabase
           .from('appointments')
           .insert({
             owner_id: userId,
-            client_id: client.id,
+            client_id: clientId,
             service_id: service.id,
             appointment_type: form.appointmentType,
             scheduled_at: scheduledAt,
@@ -744,17 +773,19 @@ export default function Agenda() {
           })
 
         if (appointmentError) {
-          const { error: cleanupError } = await supabase
-            .from('clients')
-            .delete()
-            .eq('id', client.id)
-            .eq('owner_id', userId)
+          if (createdClient) {
+            const { error: cleanupError } = await supabase
+              .from('clients')
+              .delete()
+              .eq('id', createdClient.id)
+              .eq('owner_id', userId)
 
-          if (cleanupError) {
-            console.error(
-              'Não foi possível remover o consulente criado:',
-              cleanupError,
-            )
+            if (cleanupError) {
+              console.error(
+                'Não foi possível remover o consulente criado:',
+                cleanupError,
+              )
+            }
           }
 
           throw appointmentError
@@ -1610,6 +1641,36 @@ export default function Agenda() {
                 </>
               )}
 
+              {!editingAppointment && (
+                <label className="agenda-form-field">
+                  <span>Consulente</span>
+                  <select
+                    value={form.clientId}
+                    onChange={(event) => {
+                      const client = clients.find(
+                        (item) => item.id === event.target.value,
+                      )
+
+                      setForm((current) => ({
+                        ...current,
+                        clientId: event.target.value,
+                        clientName: client?.name || '',
+                        phone: client?.phone || '',
+                      }))
+                    }}
+                  >
+                    <option value="">Cadastrar novo consulente</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.name && client.phone
+                          ? `${client.name} — ${client.phone}`
+                          : client.name || client.phone || 'Sem nome'}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
               <label className="agenda-form-field">
                 <span>Serviço do catálogo *</span>
                 <select
@@ -1656,6 +1717,7 @@ export default function Agenda() {
                     }
                     placeholder="Nome (opcional)"
                     maxLength={120}
+                    readOnly={Boolean(form.clientId)}
                   />
                 </label>
 
@@ -1671,6 +1733,7 @@ export default function Agenda() {
                     autoComplete="tel"
                     required
                     maxLength={30}
+                    readOnly={Boolean(form.clientId)}
                   />
                 </label>
               </div>

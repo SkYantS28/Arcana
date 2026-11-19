@@ -845,6 +845,7 @@
   display: flex;
   flex-direction: column;
   gap: 19px;
+  padding: 23px 24px;
 }
 
 .agenda-form-grid {
@@ -853,26 +854,32 @@
   gap: 16px;
 }
 
-.agenda-field {
+.agenda-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.agenda-form-field {
   display: flex;
   flex-direction: column;
   gap: 7px;
   min-width: 0;
 }
 
-.agenda-field-full {
+.agenda-form-field-full {
   grid-column: 1 / -1;
 }
 
-.agenda-field label {
+.agenda-form-field > span {
   font-size: 12px;
   font-weight: 700;
   line-height: 1.5;
 }
 
-.agenda-field input,
-.agenda-field select,
-.agenda-field textarea {
+.agenda-form-field input,
+.agenda-form-field select,
+.agenda-form-field textarea {
   width: 100%;
   min-width: 0;
   min-height: 43px;
@@ -885,18 +892,18 @@
   line-height: 1.5;
 }
 
-.agenda-field input::placeholder,
-.agenda-field textarea::placeholder {
+.agenda-form-field input::placeholder,
+.agenda-form-field textarea::placeholder {
   color: var(--agenda-muted);
   opacity: 0.8;
 }
 
-.agenda-field textarea {
+.agenda-form-field textarea {
   min-height: 95px;
   resize: vertical;
 }
 
-.agenda-field small {
+.agenda-form-field small {
   color: var(--agenda-muted);
   font-size: 11px;
   line-height: 1.5;
@@ -906,6 +913,19 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.agenda-type-options legend {
+  grid-column: 1 / -1;
+  padding: 0;
+  margin-bottom: 9px;
+  color: var(--agenda-text);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .agenda-type-option {
@@ -1264,12 +1284,17 @@
     padding: 19px;
   }
 
-  .agenda-form-grid {
+  .agenda-form {
+    padding: 19px;
+  }
+
+  .agenda-form-grid,
+  .agenda-form-row {
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
   }
 
-  .agenda-field-full {
+  .agenda-form-field-full {
     grid-column: auto;
   }
 
