@@ -774,6 +774,15 @@
   background: rgba(217, 94, 101, 0.09);
 }
 
+.agenda-delete-button {
+  border-color: rgba(217, 94, 101, 0.25);
+  color: #c14650;
+}
+
+.agenda-delete-button:hover:not(:disabled) {
+  background: rgba(217, 94, 101, 0.09);
+}
+
 /* Formulário e modal */
 
 .agenda-modal-backdrop {

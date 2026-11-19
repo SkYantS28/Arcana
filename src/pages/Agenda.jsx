@@ -18,6 +18,7 @@ import {
   Pencil,
   RotateCcw,
   Banknote,
+  Trash2,
 } from 'lucide-react'
 
 import { supabase } from '../lib/supabase'
@@ -887,6 +888,52 @@ export default function Agenda() {
     }
   }
 
+  async function deleteAppointment(appointment) {
+    if (!userId) return
+
+    const confirmed = window.confirm(
+      'Deseja excluir este atendimento permanentemente? Ele será removido da agenda e deixará de aparecer nos indicadores financeiros. Esta ação não pode ser desfeita.',
+    )
+
+    if (!confirmed) return
+
+    setUpdatingId(appointment.id)
+    setError('')
+    setSuccess('')
+
+    try {
+      const { data: deleted, error: deleteError } = await supabase
+        .from('appointments')
+        .delete()
+        .eq('id', appointment.id)
+        .eq('owner_id', userId)
+        .select('id')
+        .maybeSingle()
+
+      if (deleteError) throw deleteError
+
+      if (!deleted) {
+        throw new Error(
+          'Nenhuma exclusão foi confirmada. Verifique suas permissões de acesso e tente novamente.',
+        )
+      }
+
+      setAppointments((current) =>
+        current.filter((item) => item.id !== appointment.id),
+      )
+      setSuccess('Atendimento excluído com sucesso.')
+    } catch (err) {
+      console.error('Erro ao excluir atendimento:', err)
+      setError(
+        `Não foi possível excluir o atendimento. ${
+          err.message || 'Tente novamente.'
+        }`,
+      )
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
   async function handleRefund(appointment) {
     if (appointment.payment_status !== 'paid') {
       setError(
@@ -1477,6 +1524,16 @@ export default function Agenda() {
                               Reativar
                             </button>
                           )}
+
+                          <button
+                            type="button"
+                            className="agenda-small-button agenda-delete-button"
+                            disabled={isUpdating}
+                            onClick={() => deleteAppointment(appointment)}
+                          >
+                            <Trash2 size={14} />
+                            Excluir
+                          </button>
 
                           {isUpdating && (
                             <LoaderCircle
